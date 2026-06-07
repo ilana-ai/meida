@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קורס AI שיעור 2 — איך עובדים עם AI כמו שצריך</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap">
+<style>
+/* ===== THEME TOKENS ===== */
+:root[data-theme="dark"]{
+  --page-bg:
+    radial-gradient(1100px 600px at 85% -5%,rgba(124,107,255,.28),transparent 60%),
+    radial-gradient(900px 500px at 0% 10%,rgba(91,140,255,.22),transparent 55%),
+    radial-gradient(800px 700px at 50% 120%,rgba(176,107,255,.20),transparent 60%),
+    linear-gradient(160deg,#0d0b2b,#16123f 55%,#1d1652);
+  --card:rgba(255,255,255,.045); --card-hover:rgba(255,255,255,.08);
+  --tile:rgba(255,255,255,.035); --tile-bd:rgba(168,150,255,.18);
+  --stroke:rgba(168,150,255,.18); --stroke-strong:rgba(168,150,255,.42);
+  --txt:#ece9ff; --txt-soft:#bfb8ea; --txt-dim:#8a83c4;
+  --accent:#b06bff; --accent2:#5b8cff; --pink:#e08cff; --gold:#ffd98a;
+  --grad:linear-gradient(120deg,#5b8cff 0%,#7c6bff 45%,#b06bff 100%);
+  --grad-soft:linear-gradient(120deg,rgba(91,140,255,.16),rgba(176,107,255,.16));
+  --topbar-bg:rgba(13,11,43,.82);
+  --hero-grad:linear-gradient(135deg,rgba(124,107,255,.30),rgba(91,140,255,.12) 55%,rgba(176,107,255,.24));
+  --hero-border:rgba(168,150,255,.4);
+  --hero-txt:#ffffff; --hero-soft:#d8cfff;
+  --note-bg:linear-gradient(120deg,rgba(255,217,138,.14),rgba(224,140,255,.10));
+  --note-bd:rgba(255,217,138,.32); --note-txt:#fdf4dd; --note-strong:#ffd98a;
+  --shadow:0 18px 50px -20px rgba(60,30,140,.7);
+  --shadow-soft:0 10px 26px -12px rgba(60,30,140,.55);
+  --f1-bg:rgba(91,140,255,.12); --f1-bd:rgba(91,140,255,.45); --f1-tag:#5b8cff;
+  --f2-bg:rgba(124,107,255,.12); --f2-bd:rgba(124,107,255,.45); --f2-tag:#7c6bff;
+  --f3-bg:rgba(224,140,255,.12); --f3-bd:rgba(224,140,255,.45); --f3-tag:#b06bff;
+  --mark:rgba(255,217,138,.4);
+}
+:root[data-theme="light"]{
+  --page-bg:linear-gradient(160deg,#f5efe6 0%,#e3ecdf 100%);
+  --card:#ffffff; --card-hover:#fbf8f2;
+  --tile:#f5efe6; --tile-bd:#e8dfd0;
+  --stroke:rgba(90,126,93,.20); --stroke-strong:rgba(90,126,93,.42);
+  --txt:#2c3a2d; --txt-soft:#5a6b5c; --txt-dim:#869187;
+  --accent:#5a7e5d; --accent2:#e09a5f; --pink:#cd7d4a; --gold:#c98f3a;
+  --grad:linear-gradient(120deg,#5a7e5d 0%,#87a988 60%,#e09a5f 130%);
+  --grad-soft:linear-gradient(120deg,rgba(135,169,136,.18),rgba(224,154,95,.14));
+  --topbar-bg:rgba(245,239,230,.92);
+  --hero-grad:linear-gradient(135deg,#5a7e5d,#87a988);
+  --hero-border:rgba(90,126,93,.3);
+  --hero-txt:#ffffff; --hero-soft:#eef6ec;
+  --note-bg:linear-gradient(120deg,#f1c7a1,#f0c987);
+  --note-bd:rgba(224,154,95,.5); --note-txt:#5a3d20; --note-strong:#7a4a18;
+  --shadow:0 12px 32px rgba(60,70,55,.12);
+  --shadow-soft:0 6px 18px rgba(90,126,93,.14);
+  --f1-bg:#fdf6ec; --f1-bd:#f1c7a1; --f1-tag:#e09a5f;
+  --f2-bg:#eef6ee; --f2-bd:#c4d4c5; --f2-tag:#5a7e5d;
+  --f3-bg:#f0eef6; --f3-bd:#c8c1de; --f3-tag:#7a6fae;
+  --mark:#f0c987;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{overflow-x:clip;overscroll-behavior-x:none}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Heebo','Segoe UI',-apple-system,BlinkMacSystemFont,'Arial Hebrew',sans-serif;
+  background:var(--page-bg); background-attachment:fixed;
+  color:var(--txt); line-height:1.7; font-size:18px; min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  transition:background .4s ease,color .3s ease;
+}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--topbar-bg); backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--stroke);
+  display:flex; align-items:center; gap:14px; padding:12px 22px;
+}
+.topbar h1{font-size:18px; font-weight:800; color:var(--txt); white-space:nowrap}
+.topbar h1 span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.search-wrap{flex:1; max-width:430px; margin-inline-start:auto; position:relative}
+.search-wrap input{
+  width:100%; padding:11px 42px 11px 16px; border-radius:30px;
+  border:1.5px solid var(--stroke-strong); background:var(--card);
+  font-family:inherit; font-size:15px; color:var(--txt); outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.search-wrap input::placeholder{color:var(--txt-dim)}
+.search-wrap input:focus{border-color:var(--accent); box-shadow:0 0 0 4px var(--grad-soft)}
+.search-wrap::before{content:"🔍"; position:absolute; inset-inline-end:15px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.6}
+.theme-btn,.menu-btn{
+  flex:none; width:42px; height:42px; border-radius:12px; cursor:pointer;
+  border:1.5px solid var(--stroke-strong); background:var(--card); color:var(--txt);
+  font-size:19px; display:grid; place-items:center; transition:background .2s,transform .2s;
+}
+.theme-btn:hover,.menu-btn:hover{background:var(--card-hover); transform:translateY(-1px)}
+.menu-btn{display:none}
+
+.scrim{display:none; position:fixed; inset:0; background:rgba(10,8,30,.5); z-index:44}
+.scrim.show{display:block}
+
+/* ===== LAYOUT ===== */
+.shell{display:grid; grid-template-columns:280px 1fr; max-width:1320px; margin:0 auto; gap:0}
+
+/* ===== SIDEBAR ===== */
+.sidenav{
+  position:sticky; top:67px; align-self:start;
+  height:calc(100vh - 67px); overflow-y:auto;
+  padding:22px 16px 60px; border-inline-start:1px solid var(--stroke);
+}
+.progress-box{background:var(--card); border:1px solid var(--stroke); border-radius:16px; padding:13px 16px; box-shadow:var(--shadow-soft); margin-bottom:16px}
+.progress-box .lbl{font-size:12.5px; color:var(--txt-dim); margin-bottom:8px; font-weight:600}
+.progress-track{height:8px; border-radius:99px; background:var(--tile); overflow:hidden}
+.progress-fill{height:100%; width:0; background:var(--grad); transition:width .15s}
+.nav-tools{display:flex; gap:8px; margin-bottom:14px}
+.nav-tools button{
+  flex:1; font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer;
+  padding:9px 6px; border-radius:10px; border:1.5px solid var(--stroke-strong);
+  background:var(--card); color:var(--accent); transition:background .2s,border-color .2s;
+}
+.nav-tools button:hover{background:var(--card-hover)}
+.sidenav a{
+  display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:11px;
+  color:var(--txt-soft); text-decoration:none; font-size:15px; font-weight:600;
+  margin-bottom:3px; transition:background .18s,color .18s; border-inline-start:3px solid transparent;
+}
+.sidenav a .ic{font-size:16px; width:20px; text-align:center}
+.sidenav a:hover{background:var(--card-hover); color:var(--txt)}
+.sidenav a.active{background:var(--card); color:var(--txt); font-weight:800; border-inline-start-color:var(--accent); box-shadow:var(--shadow-soft)}
+
+/* ===== MAIN ===== */
+main{padding:30px 38px 90px; min-width:0}
+
+/* HERO */
+.hero{
+  position:relative; border-radius:28px; padding:38px 38px; overflow:hidden; margin-bottom:24px;
+  background:var(--hero-grad),var(--card); border:1px solid var(--hero-border); box-shadow:var(--shadow);
+}
+.hero::after{content:""; position:absolute; inset-inline-start:-60px; bottom:-90px; width:260px; height:260px; border-radius:50%;
+  background:radial-gradient(circle,var(--grad-soft),transparent 70%); pointer-events:none}
+.hero .kicker{font-size:14px; font-weight:700; letter-spacing:.4px; color:var(--hero-soft); margin-bottom:12px; position:relative; z-index:1}
+.hero h2{font-size:clamp(24px,4vw,34px); font-weight:800; line-height:1.32; margin-bottom:18px; color:var(--hero-txt); position:relative; z-index:1}
+.formula{display:flex; flex-wrap:wrap; gap:10px; align-items:center; position:relative; z-index:1}
+.formula .fchip{background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.4); padding:9px 18px; border-radius:99px; font-weight:700; font-size:16px; color:#fff; backdrop-filter:blur(4px)}
+.formula .plus{font-size:21px; font-weight:800; color:#fff; opacity:.85}
+.hero .punch{margin-top:18px; font-size:16px; color:var(--hero-soft); position:relative; z-index:1; max-width:760px}
+
+/* STATS */
+.stats{display:flex; flex-wrap:wrap; gap:12px; margin-bottom:22px}
+.stat{flex:1 1 150px; background:var(--card); border:1px solid var(--stroke); border-radius:16px; padding:15px 18px}
+.stat .n{font-size:30px; font-weight:800; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent}
+.stat .l{font-size:14px; color:var(--txt-dim); font-weight:600}
+
+/* FILTER CHIPS */
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px}
+.chip{font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; padding:8px 15px; border-radius:999px;
+  color:var(--txt-soft); background:var(--card); border:1px solid var(--stroke); transition:all .18s}
+.chip:hover{background:var(--card-hover); color:var(--txt)}
+.chip.active{background:var(--grad); color:#fff; border-color:transparent; box-shadow:var(--shadow-soft)}
+
+/* SECTION CARDS */
+.section{background:var(--card); border:1px solid var(--stroke); border-radius:22px; box-shadow:var(--shadow-soft);
+  margin-bottom:20px; overflow:hidden; scroll-margin-top:80px; transition:border-color .2s}
+.section.open{border-color:var(--stroke-strong)}
+.sec-head{display:flex; align-items:center; gap:14px; cursor:pointer; padding:20px 24px; user-select:none}
+.sec-head:hover{background:var(--card-hover)}
+.sec-ic{flex:none; width:46px; height:46px; border-radius:13px; display:grid; place-items:center; font-size:22px; background:var(--grad-soft); border:1px solid var(--stroke)}
+.sec-head .tt{flex:1}
+.sec-head h3{font-size:21px; font-weight:800; color:var(--txt)}
+.sec-head .sub{font-size:14px; font-weight:600; color:var(--txt-dim); display:block; margin-top:2px}
+.sec-head .arrow{flex:none; width:26px; height:26px; display:grid; place-items:center; color:var(--accent); transition:transform .25s; font-size:14px}
+.section:not(.open) .sec-head .arrow{transform:rotate(-90deg)}
+.sec-body{padding:0 24px 24px; animation:fade .3s ease}
+.section:not(.open) .sec-body{display:none}
+@keyframes fade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+.lead{font-size:18px; color:var(--txt-soft); margin:18px 0 14px; font-weight:600}
+.lead:first-child{margin-top:4px}
+
+/* TILES */
+.grid{display:grid; gap:14px}
+.grid.c2{grid-template-columns:repeat(2,1fr)}
+.grid.c3{grid-template-columns:repeat(3,1fr)}
+.tile{background:var(--tile); border:1px solid var(--tile-bd); border-radius:16px; padding:17px 19px}
+.tile h4{font-size:17.5px; font-weight:800; color:var(--accent); margin-bottom:7px; display:flex; align-items:center; gap:8px}
+.tile h4 .b{background:var(--grad); color:#fff; font-size:13px; width:24px; height:24px; border-radius:8px; display:grid; place-items:center; flex-shrink:0}
+.tile p,.tile li{font-size:15px; color:var(--txt-soft); line-height:1.65}
+.tile ul{list-style:none; padding:0}
+.tile ul li{position:relative; padding-inline-start:18px; margin-bottom:6px}
+.tile ul li::before{content:"•"; position:absolute; inset-inline-start:2px; color:var(--accent2); font-weight:800}
+.tile strong{color:var(--txt)}
+
+/* NOTE */
+.note{background:var(--note-bg); border:1px solid var(--note-bd); border-radius:14px; padding:14px 18px; margin:16px 0 4px;
+  font-size:15px; color:var(--note-txt); font-weight:500; display:flex; gap:10px; align-items:flex-start}
+.note .pin{font-size:18px; flex-shrink:0}
+.note strong{color:var(--note-strong)}
+
+/* QUOTE */
+.quote{background:var(--grad-soft); border-inline-start:4px solid var(--accent); border-radius:0 14px 14px 0; padding:15px 20px; margin:16px 0 4px; font-size:16px; color:var(--txt-soft); font-style:italic}
+.quote span{display:block; margin-top:8px; font-size:13.5px; font-style:normal; font-weight:700; color:var(--txt-dim)}
+
+/* STEPS - timeline rail */
+.steps{display:flex; flex-direction:column; gap:0}
+.step{display:flex; gap:16px; position:relative; padding-bottom:20px}
+.step:last-child{padding-bottom:0}
+.step-rail{flex:none; display:flex; flex-direction:column; align-items:center}
+.step-num{width:44px; height:44px; border-radius:50%; flex:none; display:grid; place-items:center; font-weight:800; font-size:18px; color:#fff; background:var(--grad); box-shadow:var(--shadow-soft); z-index:2}
+.step-line{flex:1; width:2px; background:linear-gradient(var(--stroke-strong),transparent); margin:4px 0}
+.step:last-child .step-line{display:none}
+.step-card{flex:1; background:var(--tile); border:1px solid var(--tile-bd); border-radius:14px; padding:14px 17px}
+.step-card h5{font-size:17px; font-weight:800; color:var(--txt); margin-bottom:6px}
+.step-card p,.step-card li{font-size:14.5px; color:var(--txt-soft)}
+.step-card ul{list-style:none; padding:0; margin-top:5px}
+.step-card ul li{position:relative; padding-inline-start:16px; margin-bottom:3px}
+.step-card ul li::before{content:"–"; position:absolute; inset-inline-start:0; color:var(--accent2)}
+.step-card strong{color:var(--txt)}
+
+/* FLOW */
+.flow{display:grid; grid-template-columns:1fr auto 1fr; align-items:stretch; gap:8px}
+.flow .arrowx{display:grid; place-items:center; font-size:22px; color:var(--accent); font-weight:800}
+.flow-card{border-radius:16px; padding:18px; border:2px solid}
+.flow-card.f1{background:var(--f1-bg); border-color:var(--f1-bd)}
+.flow-card.f2{background:var(--f2-bg); border-color:var(--f2-bd)}
+.flow-card .tag{font-size:13.5px; font-weight:700; padding:4px 12px; border-radius:99px; display:inline-block; margin-bottom:8px; color:#fff}
+.flow-card.f1 .tag{background:var(--f1-tag)}
+.flow-card.f2 .tag{background:var(--f2-tag)}
+.flow-card h4{font-size:17px; font-weight:800; margin-bottom:6px; color:var(--txt)}
+.flow-card p,.flow-card li{font-size:14.5px; color:var(--txt-soft); line-height:1.6}
+.flow-card ul{list-style:none; padding:0}
+.flow-card li{position:relative; padding-inline-start:14px; margin-bottom:4px}
+.flow-card li::before{content:"•"; position:absolute; inset-inline-start:0; color:var(--accent); opacity:.7}
+.flow-card strong{color:var(--txt)}
+
+/* INSIGHTS */
+.insights{display:grid; gap:10px}
+.ins{display:grid; grid-template-columns:auto 1fr; gap:13px; align-items:start; background:var(--tile); border:1px solid var(--tile-bd); border-radius:14px; padding:14px 18px}
+.ins .em{font-size:22px}
+.ins p{margin:0; font-size:15px; color:var(--txt-soft)}
+.ins strong{color:var(--accent)}
+
+/* GLOSSARY interactive */
+.gloss-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px}
+.gcard{cursor:pointer; border-radius:14px; padding:16px; background:var(--tile); border:1px solid var(--tile-bd); transition:all .2s; min-height:60px}
+.gcard:hover{background:var(--card-hover); border-color:var(--stroke-strong); transform:translateY(-2px)}
+.gcard .term{font-weight:800; font-size:16.5px; color:var(--txt); display:flex; align-items:center; justify-content:space-between; gap:8px}
+.gcard .term .plus{color:var(--accent); font-size:18px; transition:transform .2s}
+.gcard.open .term .plus{transform:rotate(45deg)}
+.gcard .def{max-height:0; overflow:hidden; opacity:0; transition:max-height .3s ease,opacity .25s,margin-top .3s; font-size:15px; color:var(--txt-soft)}
+.gcard.open .def{max-height:240px; opacity:1; margin-top:10px}
+
+/* HOMEWORK */
+.hw{background:var(--note-bg); border:1px solid var(--note-bd); color:var(--note-txt); border-radius:18px; padding:22px 26px}
+.hw h4{font-size:19px; font-weight:800; margin-bottom:12px; color:var(--note-strong)}
+.hw ul{list-style:none; padding:0}
+.hw li{position:relative; padding-inline-start:28px; margin-bottom:10px; font-size:16.5px; font-weight:500}
+.hw li::before{content:"☐"; position:absolute; inset-inline-start:0; font-size:17px}
+
+.example{border:1px solid var(--tile-bd); background:var(--grad-soft); border-radius:14px; margin:16px 0 4px; overflow:hidden}
+.ex-head{display:flex; align-items:center; justify-content:space-between; gap:10px; cursor:pointer; padding:12px 18px; user-select:none; font-weight:700; font-size:14px; color:var(--accent)}
+.ex-head:hover{background:var(--card-hover)}
+.ex-head .plus{font-size:18px; transition:transform .2s}
+.example.open .ex-head .plus{transform:rotate(45deg)}
+.ex-body{max-height:0; overflow:hidden; opacity:0; transition:max-height .35s ease,opacity .25s,padding .3s; font-size:15px; font-style:italic; color:var(--txt-soft); padding:0 18px}
+.example.open .ex-body{max-height:600px; opacity:1; padding:4px 18px 15px}
+mark{background:var(--mark); color:var(--txt); border-radius:4px; padding:0 2px}
+.no-results{display:none; text-align:center; padding:44px; color:var(--txt-dim); font-size:16px}
+.hidden{display:none !important}
+
+footer{text-align:center; margin-top:44px; color:var(--txt-dim); font-size:14px}
+footer .grad{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width:1024px){
+  .shell{grid-template-columns:240px 1fr}
+  main{padding:26px 24px 80px}
+  .gloss-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+}
+@media (max-width:820px){
+  .menu-btn{display:grid}
+  .topbar h1{font-size:15px}
+  .shell{grid-template-columns:1fr}
+  .sidenav{position:fixed; top:63px; inset-inline-end:0; z-index:45; width:286px;
+    height:calc(100vh - 63px); background:var(--page-bg); transform:translateX(-110%);
+    transition:transform .28s; box-shadow:-12px 0 44px rgba(0,0,0,.22); border:none}
+  .sidenav.open{transform:translateX(0)}
+  main{padding:22px 16px 70px}
+  .hero{padding:28px 22px}
+  .grid.c2,.grid.c3{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .flow .arrowx{transform:rotate(-90deg)}
+  .sec-head{padding:17px 17px}
+  .sec-body{padding:0 17px 20px}
+  .stat{flex-basis:calc(50% - 6px)}
+  .gloss-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:430px){
+  .gloss-grid{grid-template-columns:1fr}
+  .stat{flex-basis:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-label="תפריט">☰</button>
+  <h1>קורס AI · <span>שיעור 2</span></h1>
+  <div class="search-wrap">
+    <input type="text" id="search" placeholder="חיפוש מושג, נושא או טיפ... (למשל: מטה קוגניציה, Deep Research, סקיל)" autocomplete="off">
+  </div>
+  <button class="theme-btn" id="themeBtn" aria-label="החלפת ערכת צבע" title="יום / לילה">🌙</button>
+</div>
+
+<div class="scrim" id="scrim"></div>
+
+<div class="shell">
+
+  <nav class="sidenav" id="sidenav">
+    <div class="progress-box">
+      <div class="lbl">התקדמות בקריאה</div>
+      <div class="progress-track"><div class="progress-fill" id="pfill"></div></div>
+    </div>
+    <div class="nav-tools">
+      <button id="expandAll">פתח הכל</button>
+      <button id="collapseAll">סגור הכל</button>
+    </div>
+    <a href="#msg" class="active"><span class="ic">🎯</span> המסר המרכזי</a>
+    <a href="#meta"><span class="ic">🧠</span> מטה קוגניציה</a>
+    <a href="#cats"><span class="ic">🧩</span> 4 קטגוריות משימה</a>
+    <a href="#deep"><span class="ic">🔬</span> Deep Research</a>
+    <a href="#visual"><span class="ic">🎨</span> יצירה ויזואלית</a>
+    <a href="#skills"><span class="ic">📦</span> סקילים - איפה ואיך</a>
+    <a href="#learn"><span class="ic">🔁</span> ללמד את ה-AI מהפלט</a>
+    <a href="#manage"><span class="ic">🗂️</span> ניהול שיחות ופרויקטים</a>
+    <a href="#cowork"><span class="ic">💻</span> Cowork / Desktop</a>
+    <a href="#qdoctor"><span class="ic">🩺</span> שאלה: הרופא הוירטואלי</a>
+    <a href="#qreels"><span class="ic">🎬</span> שאלה: דאטה מול מאפס</a>
+    <a href="#keyins"><span class="ic">⭐</span> תובנות מרכזיות</a>
+    <a href="#hw"><span class="ic">✅</span> שיעורי בית</a>
+    <a href="#gloss"><span class="ic">📖</span> מילון מושגים</a>
+  </nav>
+
+  <main id="main">
+
+    <!-- HERO -->
+    <div class="hero section-block" id="msg" data-cat="mindset" data-search="המסר המרכזי לא צריך עוד כלים פרומפטים מושלמים לחשוב אחרת דאטה מטה קוגניציה">
+      <div class="kicker">💎 הדבר הכי חשוב מהשיעור</div>
+      <h2>לא צריך עוד כלים, ולא פרומפטים מושלמים - צריך לחשוב אחרת</h2>
+      <div class="formula">
+        <span class="fchip">עיבוד וניתוח</span>
+        <span class="plus">·</span>
+        <span class="fchip">כתיבה וניסוח</span>
+        <span class="plus">·</span>
+        <span class="fchip">יצירה ויזואלית</span>
+        <span class="plus">·</span>
+        <span class="fchip">מחקר</span>
+      </div>
+      <p class="punch">ככל שתדעי מה את רוצה לקבל ואיזו דאטה יש לך לתת - תוציאי יותר. כל משימה נשענת על אחת מ-4 הקטגוריות האלה, והסוד הוא לזהות באיזו את נמצאת ולא לערבב ביניהן.</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat"><div class="n">8</div><div class="l">נושאים מרכזיים</div></div>
+      <div class="stat"><div class="n">4</div><div class="l">קטגוריות משימה</div></div>
+      <div class="stat"><div class="n">2</div><div class="l">שאלות חיות מהשיעור</div></div>
+      <div class="stat"><div class="n">7</div><div class="l">מושגים במילון</div></div>
+    </div>
+
+    <!-- FILTER CHIPS -->
+    <div class="chips" id="chips">
+      <button class="chip active" data-f="all">הכל</button>
+      <button class="chip" data-f="mindset">חשיבה ושיטה</button>
+      <button class="chip" data-f="process">תהליך עבודה</button>
+      <button class="chip" data-f="tools">כלים</button>
+      <button class="chip" data-f="qa">שאלות מהשיעור</button>
+      <button class="chip" data-f="extra">תובנות ובית</button>
+    </div>
+
+    <!-- META COGNITION -->
+    <section class="section section-block open" id="meta" data-cat="mindset" data-search="מטה קוגניציה לחשוב על החשיבה מודעות תוך כדי מחקרים תוצאות לא תשובות הצעת מחיר תמלול">
+      <div class="sec-head"><div class="sec-ic">🧠</div><div class="tt"><h3>מטה קוגניציה - לחשוב תוך כדי שעובדים</h3><span class="sub">היכולת שמבדילה את מי שמצליח עם AI</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <p class="lead">מה זה?</p>
+        <div class="tile"><ul>
+          <li>מטה קוגניציה זה לחשוב על החשיבה - להיות מודעת למה שאת עושה <strong>תוך כדי שאת עושה את זה</strong>.</li>
+          <li>זה לא שיטה שלומדים פעם אחת - זה קישור שמתחזק ככל שעובדים יותר.</li>
+          <li>בהתחלה זה לוקח הרבה זמן, וככל שחוזרים על זה - זה הופך מהיר יותר ויותר, עד שזה כמעט אוטומטי.</li>
+        </ul></div>
+        <p class="lead">למה זה חשוב?</p>
+        <div class="insights">
+          <div class="ins"><span class="em">📊</span><p>מחקרים מראים שמי שמצליח עם AI הם לא מי שמכיר הכי הרבה כלים, ולא מי שיש לו פרומפטים מוכנים - אלא <strong>אנשים שפיתחו מטה קוגניציה</strong>.</p></div>
+          <div class="ins"><span class="em">🛑</span><p>רוב האנשים מקבלים תשובה וממשיכים הלאה, או מתוסכלים שזה לא עובד. מי שפיתח מטה קוגניציה <strong>עוצר, חושב, מזהה מה לא עבד, ושואל שוב</strong> עד שזה עובד.</p></div>
+          <div class="ins"><span class="em">🎁</span><p>ה-AI הוא לא כלי שמביא תשובות - הוא כלי שמביא <strong>תוצאות</strong>. זה הפרש של ממש.</p></div>
+        </div>
+        <p class="lead">איך זה עובד בפועל?</p>
+        <div class="grid c3">
+          <div class="tile"><h4>לפני</h4><p>לפני שפותחים צ'אט - לשאול: מה אני רוצה לקבל? איזו דאטה יש לי לתת?</p></div>
+          <div class="tile"><h4>תוך כדי</h4><p>בתוך השיחה - לשים לב מה קורה, לזהות מה לא טוב, לדייק ולשפר.</p></div>
+          <div class="tile"><h4>לא לסגור</h4><p>לא לכתוב פרומפט ולסגור. להישאר בתוך התהליך ולהמשיך לדייק.</p></div>
+        </div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">"הבנתי שאני רוצה לקבל הצעת מחיר. אחר כך שאלתי מה הדאטה שיש לי - הייתה לי הצעה קיימת ותמלול שיחה. אחרי זה שאלתי את עצמי איך אני שולטת בתהליך - ואמרתי לו: הבנת מה אני רוצה? לא להתחיל בלי שאני מסכימה."</div></div>
+      </div>
+    </section>
+
+    <!-- 4 CATEGORIES -->
+    <section class="section section-block open" id="cats" data-cat="mindset" data-search="פירוק משימות 4 קטגוריות עיבוד ניתוח נתונים כתיבה ניסוח יצירה ויזואלית מחקר תובנה טקסט גנרי דירקטוריון">
+      <div class="sec-head"><div class="sec-ic">🧩</div><div class="tt"><h3>פירוק משימות ל-4 קטגוריות</h3><span class="sub">מזהים באיזו קטגוריה את - ויודעים מה לבקש</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <p class="lead">כמעט כל מה שמבקשים מ-AI נכנס לאחת מארבע הקטגוריות:</p>
+        <div class="grid c2">
+          <div class="tile"><h4>🔍 עיבוד וניתוח נתונים</h4><p>יש לנו דאטה ורוצים להוציא ממנה משהו - אקסל, תמלולים, הצעות מחיר, פידבקים. התוצאה היא תמיד <strong>תובנה</strong>, לא טקסט סופי.</p></div>
+          <div class="tile"><h4>✍️ כתיבה וניסוח</h4><p>יש לנו רעיון או תובנה ורוצים לנסח אותה - מייל, סיכום ישיבה, הצעה עסקית. התוצאה היא <strong>טקסט שאפשר להשתמש בו</strong>.</p></div>
+          <div class="tile"><h4>🎨 יצירה ויזואלית</h4><p>יש לנו תוכן מוכן ורוצים שמישהו יראה אותו בצורה יפה - מצגת, גרף, דשבורד, אינפוגרפיקה.</p></div>
+          <div class="tile"><h4>🔬 מחקר</h4><p>אין לנו מידע ואנחנו הולכים לחפש. השאלה היא שאלה, הפלט הוא <strong>מידע חדש</strong>.</p></div>
+        </div>
+        <div class="note"><span class="pin">📌</span><div><strong>למה לא לערבב?</strong> כשמערבבים שתי קטגוריות בבקשה אחת - התוצאה יוצאת גנרית ושטוחה. לא כי ה-AI לא טוב, אלא כי ביקשנו ממנו לעשות כמה סוגי חשיבה שונים בבת אחת. הכלל: <strong>מעבר בין קטגוריות = עצירה והבאת הפלט קודם</strong>, ואז שיחה חדשה (או סימון מעבר מפורש).</div></div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">מנהל שמביא דוח של 30 עמודים ורוצה מצגת לדירקטוריון. הטעות הקלאסית - לומר לו "תהפוך לי את זה למצגת". הדרך הנכונה: שיחה 1 - "קרא את הדוח, תביא לי 5 תובנות". שיחה 2 - "תנסח מסרים מהתובנות האלה". שיחה 3 - "תבנה שקפים מהמסרים".</div></div>
+      </div>
+    </section>
+
+    <!-- DEEP RESEARCH -->
+    <section class="section section-block open" id="deep" data-cat="process" data-search="deep research תוכנית מחקר פרומפט פרפלקסיטי גמיני chatgpt notion gmail airtable מקורות פרטיים">
+      <div class="sec-head"><div class="sec-ic">🔬</div><div class="tt"><h3>שיטת Deep Research</h3><span class="sub">תוכנית מחקר לפני המחקר עצמו</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <p class="lead">מה זה?</p>
+        <div class="tile"><ul>
+          <li>Deep Research זה לתת לקלוד לבנות <strong>תוכנית מחקר</strong> לפני שהוא מתחיל את המחקר עצמו.</li>
+          <li>כשנותנים לו תוכנית מוכנה - הוא יודע בדיוק איפה לחפש, על איזה שאלות לענות, ואיזה סוג מידע להביא. ובזכות זה הפלט יוצא הרבה יותר מדויק.</li>
+          <li>זה עובד לא רק על האינטרנט - אפשר לחבר אותו לקבצים פרטיים, ל-Notion, ל-Gmail, ל-Airtable, ולעשות מחקר על <strong>הדאטה שלך</strong>.</li>
+        </ul></div>
+        <p class="lead">איך זה עובד בפועל - 3 שלבים:</p>
+        <div class="steps">
+          <div class="step"><div class="step-rail"><div class="step-num">א</div><div class="step-line"></div></div><div class="step-card"><h5>בונים תוכנית מחקר</h5><p>מעתיקים את הפרומפט ליצירת תוכנית מחקר (מהחומר בשיעור), מכניסים את הנושא, ומריצים בקלוד רגיל - <strong>לא ב-Deep Research עדיין</strong>.</p></div></div>
+          <div class="step"><div class="step-rail"><div class="step-num">ב</div><div class="step-line"></div></div><div class="step-card"><h5>מקבלים תוכנית כפרומפט</h5><p>קלוד מחזיר תוכנית מחקר בפורמט של פרומפט - עם שאלות מרכזיות, שיטות חיפוש, וסוגי מקורות.</p></div></div>
+          <div class="step"><div class="step-rail"><div class="step-num">ג</div></div><div class="step-card"><h5>מריצים ב-Deep Research</h5><p>לוקחים את הפרומפט הזה ומעתיקים אותו לתוך Deep Research (בקלוד, בפרפלקסיטי, בגמיני, ב-ChatGPT - הכל עובד). אפשר גם להתאים: לחפש בפורום ולא בבלוגים, ב-Reddit, או ספציפית ב-Notion שלך.</p></div></div>
+        </div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">"אני לא עושה Deep Research ישר. קודם אני יוצרת תוכנית מחקר - הוא כותב לי בדיוק איפה לחפש ומה לשאול. אחר כך אני לוקחת את הפרומפט הזה ומריצה אותו ב-Deep Research. גם עשיתי מזה סקיל - עכשיו כשאני אומרת לו 'תכתוב לי תוכנית מחקר', הוא כבר יודע מה לעשות."</div></div>
+      </div>
+    </section>
+
+    <!-- VISUAL -->
+    <section class="section section-block open" id="visual" data-cat="tools" data-search="יצירה ויזואלית מצגת דשבורד אינפוגרפיקה notebooklm גמיני chatgpt קלוד artifacts html כיוונים סטטיים מותג">
+      <div class="sec-head"><div class="sec-ic">🎨</div><div class="tt"><h3>יצירה ויזואלית מתוצאות מחקר</h3><span class="sub">להפוך דוח לכל דבר - וכל כלי בדרך שלו</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <p class="lead">אחרי שיש דוח מ-Deep Research - אפשר להפוך אותו כמעט לכל דבר: מצגת, דשבורד, אינפוגרפיקות, ויזואליזציה אינטראקטיבית, קרוסלה לאינסטגרם, פודקאסט. כל כלי עושה את זה קצת אחרת:</p>
+        <div class="grid c2">
+          <div class="tile"><h4>📓 NotebookLM</h4><p>מקורקע לחומרים שמעלים לו. לא עובד בלי קבצים, אבל יודע ליצור פודקאסט שמספר על החומר, מצגות, ועוד. הכי מתאים כשרוצים ויזואל מהיר מהקבצים שלך.</p></div>
+          <div class="tile"><h4>🟦 גמיני</h4><p>טוב ליצירת מצגות, עובד עם Canvas. הפלט לפעמים פחות יפה אם לא מפרטים עיצוב.</p></div>
+          <div class="tile"><h4>🟢 ChatGPT</h4><p>יודע ליצור תמונות ואינפוגרפיקות, כולל אינפוגרפיקות עם לוגו שמעלים לו.</p></div>
+          <div class="tile"><h4>🟣 קלוד</h4><p>יצירת ויזואליזציות אינטראקטיביות (Artifacts), דשבורדים ב-HTML, ועיצובים שאפשר לפתוח בדפדפן.</p></div>
+        </div>
+        <div class="note"><span class="pin">📌</span><div><strong>איך עובדים נכון עם ויזואל:</strong> אסור לבקש ויזואל ישר מהדאטה הגולמית - קודם ניתוח, אחר כך טקסט, ורק אחר כך ויזואל. ולפני שמבקשים עיצוב סופי - לבקש כמה כיוונים ויזואליים סטטיים ולבחור מביניהם. לא לתת לו לבחור לבד: "תיצור לי HTML סטטי שמראה 3-4 כיוונים, אני אבחר אחד ואז תבנה את הכל".</div></div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">"הורדתי את ה-Deep Research כ-Markdown, העליתי לקלוד, ואמרתי לו: תיצור לי ויזואליזציה אינטראקטיבית שתלמד אותי כל מה שיש פה. ל-ChatGPT אמרתי: תעבוד בשני שלבים - קודם תמצות ורשימת אינפוגרפיקות מומלצות, אחר כך תייצר אותן אחת אחת, עם הלוגו שהעליתי לך."</div></div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section class="section section-block open" id="skills" data-cat="tools" data-search="סקילים skill zip github כוכבים stars mit license לסרוק קוד בטוח download zip save skill ידע vs מתכון">
+      <div class="sec-head"><div class="sec-ic">📦</div><div class="tt"><h3>סקילים - איפה מוצאים ואיך מורידים</h3><span class="sub">ידע זה מה שהוא יודע, סקיל זה מה שהוא יודע לעשות</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <div class="note"><span class="pin">📌</span><div>סקיל הוא קובץ (בדרך כלל Zip) שמכיל הוראות לקלוד - איך לבצע סוג מסוים של משימה. <strong>ידע</strong> זה מה שהוא יודע, <strong>סקיל</strong> זה מה שהוא יודע לעשות - flow, תהליך, מתכון.</div></div>
+        <div class="grid c3">
+          <div class="tile"><h4>📍 איפה מוצאים</h4><ul>
+            <li>GitHub - אלפי סקילים בחינם. מחפשים "skill claude carousel" או כל נושא.</li>
+            <li>אתרים שעוטפים סקילים מגיטהאב בממשק נוח - בסדר גמור.</li>
+            <li>לבקש מפרפלקסיטי לחפש: "תחפש סקיל ל-Claude ליצירת קרוסלות".</li>
+          </ul></div>
+          <div class="tile"><h4>🛡️ איך בודקים שבטוח</h4><ul>
+            <li>כמה כוכבים יש ב-GitHub - אם אין בכלל, לא להוריד.</li>
+            <li>MIT License - סימן שהבן אדם רוצה שזה יהיה מקצועי ופתוח.</li>
+            <li>לסרוק את הקוד - יש אתר שמכניסים לו את ה-URL של הגיטהאב והוא בודק שהקוד תקין.</li>
+          </ul></div>
+          <div class="tile"><h4>⬇️ איך מורידים</h4><ul>
+            <li>בגיטהאב - "Code" ואחר כך "Download ZIP".</li>
+            <li>אם הסקיל יצר כמה קבצים - <strong>אסור לשמור רק Save Skill</strong> (הוא שומר רק את הקובץ הראשי). להוריד הכל כ-Zip, לחלץ, ולהעלות את כל הקבצים יחד.</li>
+          </ul></div>
+        </div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">"הלכתי לפרפלקסיטי, שאלתי אותו, הוא מצא קרוסל מייקר סקיל בגיטהאב. לא הבנתי איך להוריד - אז שאלתי אותו, הוא הסביר. ואז הלכתי לקלוד ואמרתי לו: תיגש לסקיל הזה, תראה מה יש בו, תייצר לי סקיל דומה שאני מביאה לו את החומר ועובדת איתו."</div></div>
+      </div>
+    </section>
+
+    <!-- LEARN FROM OUTPUT -->
+    <section class="section section-block open" id="learn" data-cat="process" data-search="ללמד את ה-ai מהפלט שלו פלט טוב פלט רע הפרש כלל סקיל ישר להפוך לסקיל לא לזכור">
+      <div class="sec-head"><div class="sec-ic">🔁</div><div class="tt"><h3>ללמד את ה-AI מהפלט שלו עצמו</h3><span class="sub">פלט טוב + פלט רע = כלל שאפשר לשמור</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <p class="lead">מה זה ולמה זה חשוב?</p>
+        <div class="tile"><ul>
+          <li>כשיש לך פלט שיצא טוב ופלט שיצא פחות טוב - אפשר לתת לו את <strong>שניהם</strong> ולגרום לו ללמוד מההפרש.</li>
+          <li>הוא מנתח לבד מה ההבדל, מה עבד ומה לא, ומוציא כלל - שאחר כך אפשר לשמור כסקיל לפעם הבאה.</li>
+          <li>את לא צריכה לנסח לבד מה עבד - הוא עושה את זה בשבילך. כל פעם שיוצא משהו טוב - <strong>ישר להפוך אותו לסקיל</strong>. לא לזכור, לא להמתין. עכשיו.</li>
+        </ul></div>
+        <p class="lead">איך זה עובד בפועל?</p>
+        <div class="tile"><ul>
+          <li>פותחים שיחה חדשה, מכניסים את שני הפלטים.</li>
+          <li>אומרים לו: "הפלט הזה טוב. הפלט הזה לא טוב. תלמד מההפרש - מה אהבתי כאן שלא אהבתי שם? תוציא לי כלל, תייצר מזה סקיל".</li>
+          <li>גם אם את כתבת גרסה יותר טובה בעצמך - אפשר לתת לו את הגרסה שלו ואת שלך ולהגיד: "תלמד מההפרש".</li>
+        </ul></div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">"אם הוא כתב לי משהו ואני לא אוהבת, וכתבתי משהו אחר שיותר טוב - אני נותנת לו ללמוד מההפרש. אני לא צריכה לחשוב על זה - הוא חושב על הדאטה של עצמו."</div></div>
+      </div>
+    </section>
+
+    <!-- MANAGE -->
+    <section class="section section-block open" id="manage" data-cat="process" data-search="ניהול שיחות פרויקטים שיחה ארוכה בעיה פרויקט קבצי ידע סקיל memory זיכרון אוטומטי למחוק">
+      <div class="sec-head"><div class="sec-ic">🗂️</div><div class="tt"><h3>ניהול שיחות ופרויקטים</h3><span class="sub">שיחה ארוכה היא סימן שמשהו לא פוצל נכון</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <p class="lead">מה זה?</p>
+        <div class="grid c3">
+          <div class="tile"><h4>⚠️ שיחה ארוכה = בעיה</h4><p>שיחה ארוכה אומרת שעשית שם יותר מפעולה קוגניטיבית אחת, או שמשהו היה צריך להפוך לפרויקט.</p></div>
+          <div class="tile"><h4>📁 פרויקט</h4><p>מקום שיש בו הוראות קבועות + קבצי ידע. בכל שיחה חדשה בתוכו הוא כבר יודע מה תפקידו.</p></div>
+          <div class="tile"><h4>🧠 ידע מול סקיל</h4><p>קבצי ידע = מה שהוא צריך לדעת (עקרונות, כללים). סקיל = מה שהוא צריך לדעת לעשות (תהליך, flow).</p></div>
+        </div>
+        <p class="lead">מה כדאי לשמור ואיך?</p>
+        <div class="tile"><ul>
+          <li>אם הוא יצר משהו טוב בשיחה - לבקש ממנו להוציא את זה כמסמך ולהוסיף לפרויקט.</li>
+          <li>אם הוא יצר תהליך שעובד - לבקש ממנו להפוך את זה לסקיל.</li>
+          <li>לגבי הזיכרון האוטומטי שלו (Memory) - לא לסמוך עליו יותר מדי. מה שחשוב - לתעד בקבצים בפרויקט.</li>
+          <li>אם הוא זכר משהו שלא רצית - פשוט לומר לו: "תמחק את זה מהזיכרון, אני לא רוצה שתדע את זה".</li>
+        </ul></div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">"אם הייתה לי שיחה ובה ידע חשוב שרציתי לשמור - אני אומרת לו: תוציא את כל הידע למסמך, בלי לפספס כלום, אני רוצה להוסיף לפרויקט. אם זה תהליך - אני אומרת לו: תייצר סקיל."</div></div>
+      </div>
+    </section>
+
+    <!-- COWORK -->
+    <section class="section section-block open" id="cowork" data-cat="tools" data-search="cowork claude desktop מחובר תיקיות קבצים connectors gmail calendar notion airtable plugins תיקייה ספציפית נתיב browser code">
+      <div class="sec-head"><div class="sec-ic">💻</div><div class="tt"><h3>Claude Cowork / Desktop</h3><span class="sub">כשה-AI מתחבר למחשב שלך</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <p class="lead">מה זה?</p>
+        <div class="tile"><ul>
+          <li>הקלוד בדפדפן = צ'אט רגיל. Claude Desktop / Cowork = <strong>אותו קלוד, אבל מחובר לתיקיות ולקבצים על המחשב שלך</strong>.</li>
+          <li>ברגע שמחברים - הוא יכול לעבור על קבצים, לקרוא אותם, לשמור קבצים חדשים, ולעבוד עם תיקיות שלמות.</li>
+          <li><strong>Connectors</strong> - חיבורים לכלים חיצוניים (Gmail, Google Calendar, Notion, Airtable ועוד עשרות). ברגע שמחברים - הוא יכול לגשת לדאטה שם ולעשות בה פעולות.</li>
+        </ul></div>
+        <p class="lead">כמה דברים חשובים לעבוד נכון:</p>
+        <div class="grid c2">
+          <div class="tile"><h4>📂 תמיד תיקייה ספציפית</h4><p>תמיד לפתוח לו תיקייה ספציפית ולהגיד לו לשמור שם. אם לא - הוא יישמור בתיקיות פנימיות שלעולם לא תמצאו. ואם כבר שמר ולא יודעים איפה - "תביא לי את הנתיב של הקובץ".</p></div>
+          <div class="tile"><h4>🧱 Plugins</h4><p>אוסף של סקילים ביחד, שיושב על המחשב. יש Plugins מוכנים של Anthropic (ניתוח דאטה, עיצוב ועוד) ב-Customize &gt; Browse Plugins. זמין רק ב-Cowork, לא בדפדפן.</p></div>
+        </div>
+        <p class="lead">מה ההבדל בין הכלים?</p>
+        <div class="grid c3">
+          <div class="tile"><h4>🌐 קלוד בדפדפן</h4><p>לכל מה שלא צריך גישה לקבצים על המחשב.</p></div>
+          <div class="tile"><h4>💻 Desktop / Cowork</h4><p>כשצריך שיגש לתיקיות, יעבוד על קבצים, יחבר כלים חיצוניים, או ישתמש ב-Plugins.</p></div>
+          <div class="tile"><h4>⌨️ Claude Code</h4><p>אותו עיקרון של Desktop, אבל ממוקד יותר לכתיבת קוד. לא רלוונטי לרוב המשתמשים כרגע.</p></div>
+        </div>
+        <div class="example"><div class="ex-head"><span>💬 דוגמה מהשיעור</span><span class="plus">+</span></div><div class="ex-body">"אני עובדת עם Cowork ופתחתי לו תיקיית Downloads. אמרתי לו: לך לתיקייה הזאת, תחפש את ערכת המותג שלי, תגזור ממנה סגנון עיצובי ותייצר לי את הדשבורד עם הצבעים שלי. לא כתבתי פרומפט ארוך. אמרתי לו לאן ללכת ומה לעשות - הוא עשה את השאר."</div></div>
+      </div>
+    </section>
+
+    <!-- Q DOCTOR -->
+    <section class="section section-block open" id="qdoctor" data-cat="qa" data-search="שאלה הרופא הוירטואלי היסטוריה רפואית פרפלקסיטי בזמן אמת מילה במילה תגידי בדיוק את זה מטה קוגניציה">
+      <div class="sec-head"><div class="sec-ic">🩺</div><div class="tt"><h3>שאלה מהשיעור: הרופא הוירטואלי</h3><span class="sub">איך מתחילים פרויקט - ולמה לא צריך "לנסח נכון"</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <div class="note"><span class="pin">🔗</span><div>השאלה הזו היא <strong>מטה קוגניציה בפעולה</strong>: המרצה לא נתנה תשובה ישירה - היא ענתה בשאלה "מה בדיוק חסר לך?" והנחתה צעד אחרי צעד.</div></div>
+        <p class="lead">מה קרה:</p>
+        <div class="tile"><ul>
+          <li>תלמידה ביקשה לבנות רופא וירטואלי שמכיר את כל ההיסטוריה הרפואית שלה. ניסתה ב-GPT, היה נחמד, אבל הרגיש לה שחסר משהו.</li>
+          <li>הצעד הראשון של המרצה - <strong>לפני שבונים כלום, ללכת לפרפלקסיטי ולחפש אם כבר קיים משהו</strong>. דווקא פרפלקסיטי ולא קלוד, כי הוא מחפש באינטרנט בזמן אמת, והשאלה היא על כלים קיימים בעולם.</li>
+          <li>השאלה לפרפלקסיטי: "האם יש כלים או מקורות מידע שמתמחים ברפואה ברמה שעולה על רופא רגיל? אם לא - אילו שיטות AI יכולות לעזור לי לבנות משהו כזה?" ואחר כך לחקור בתוך מה שהוא מביא.</li>
+        </ul></div>
+        <p class="lead">ואז קרה משהו מעניין:</p>
+        <div class="tile"><p>התלמידה שיתפה שהלכה להמון רופאים שלא הצליחו לעזור. עם ChatGPT היא עשתה תהליך עמוק, הגיעה לתובנות שלא קיבלה מאיש, ביקשה בדיקות מאוד ספציפיות שהרופא נתן - וזה ממש שינה לה את הבריאות. היא שאלה: "אני רוצה לקחת את הדפוס שעבד ולייצר ממנו משהו - איך?"</p></div>
+        <div class="note"><span class="pin">💡</span><div><strong>תשובת המרצה:</strong> מה שאמרת לי עכשיו - תגידי בדיוק את זה לקלוד. <strong>מילה במילה</strong>. הרבה אנשים חושבים שצריך לנסח את הבקשה "נכון" לפני שפונים ל-AI. לא. כל מה שאת יכולה לספר לאדם - תספרי לו. גם אם לא ברור לך מה את רוצה: "יש לי דאטה X ו-Y, מה אני עושה עם זה?" - והוא יגיד לך מה לעשות.</div></div>
+      </div>
+    </section>
+
+    <!-- Q REELS -->
+    <section class="section section-block open" id="qreels" data-cat="qa" data-search="שאלה סרטונים ריילס אינסטגרם דאטה מאפס מאסטרמיינד פרומפט חוזר סקיל סגנון נתוני ביצוע deep research תחושות בטן">
+      <div class="sec-head"><div class="sec-ic">🎬</div><div class="tt"><h3>שאלה מהשיעור: דאטה שיש לך מול להתחיל מאפס</h3><span class="sub">שני מצבים שונים לגמרי - לכל אחד דרך</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <div class="note"><span class="pin">🔗</span><div>השאלה הזו מחברת שני עקרונות מהשיעור: <strong>דאטה לפני הכל</strong>, ו-<strong>Deep Research</strong> דווקא כשאין לך מאיפה להתחיל.</div></div>
+        <div class="flow">
+          <div class="flow-card f1"><span class="tag">יש לך דאטה</span><h4>סרטונים שכבר עבדו</h4><ul>
+            <li>קודם סיעור מוחות כללי עם קלוד - לתת לו את הסרטונים שעבדו ולהגיד "תבין מה עבד כאן" (אפשר עם סקיל מאסטרמיינד).</li>
+            <li>כשהוא מבין - לבקש ממנו פרומפט חוזר: "כל פעם שאני אגיד 'תתחיל' - תיתן לי מלא רעיונות לריילס בסגנון שלמדת".</li>
+            <li>אפשר לשלב עם סקיל הסגנון שלך - אחד מביא רעיונות, השני שומר על הסגנון.</li>
+            <li>יש נתוני ביצוע? לתת לו: "תנתח לי את החודש-חודשיים האחרונים, מה עבד הכי טוב" - ולשכפל.</li>
+          </ul></div>
+          <div class="arrowx">⇄</div>
+          <div class="flow-card f2"><span class="tag">מתחילה מאפס</span><h4>אין עדיין שום דאטה</h4><ul>
+            <li><strong>לא להמציא</strong> - לא נישה, לא פורמט ויזואלי, לא לנחש מה יעבוד.</li>
+            <li>ללכת לפרפלקסיטי ולעשות Deep Research: "אני מתחילה אינסטגרם מאפס בנישה X. איך אנשים שמצליחים בזה עושים את זה?"</li>
+            <li>מהמחקר - לבקש מקלוד תוכנית פעולה מותאמת לנישה שלך.</li>
+            <li>כשמתחילים לצבור תוכן - ישר לתת לו את הנתונים ולנתח מה עבד. ככה עוברים מ"מאפס" ל"יש לי דאטה" מהר ככל האפשר.</li>
+          </ul></div>
+        </div>
+        <div class="note"><span class="pin">📌</span><div>הנקודה הכי חשובה שעלתה - <strong>לא ללכת לפי תחושות בטן</strong> על מה יעבוד. יש דאטה בעולם על מה עובד באינסטגרם. ללכת לחפש אותה, ללמוד ממנה, ואחר כך להתאים לנישה שלך - זה הרבה יותר יעיל מלנחש מאפס.</div></div>
+      </div>
+    </section>
+
+    <!-- KEY INSIGHTS -->
+    <section class="section section-block open" id="keyins" data-cat="extra" data-search="תובנות מרכזיות מטה קוגניציה קטגוריות deep research סקיל הפרש שיחות קצרות connectors">
+      <div class="sec-head"><div class="sec-ic">⭐</div><div class="tt"><h3>תובנות מרכזיות</h3><span class="sub">הדברים הגדולים לקחת מהשיעור</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <div class="insights">
+          <div class="ins"><span class="em">🧠</span><p>הדבר הכי חשוב עם AI הוא לא לדעת פרומפטים - זה לפתח <strong>מטה קוגניציה</strong>: לדעת מה את רוצה, לזהות מה לא עבד, ולדייק.</p></div>
+          <div class="ins"><span class="em">🧩</span><p>כל משימה מורכבת מכמה קטגוריות - ניתוח, כתיבה, ויזואל, מחקר. <strong>לעולם לא למזג אותן</strong> בבקשה אחת.</p></div>
+          <div class="ins"><span class="em">🔬</span><p>Deep Research יוצא הרבה יותר טוב כשמכינים <strong>תוכנית מחקר קודם</strong> - לא להריץ ישר.</p></div>
+          <div class="ins"><span class="em">📦</span><p>כל פעם שמשהו יוצא טוב - <strong>ישר להפוך אותו לסקיל</strong>. לא לזכור, לא להמתין.</p></div>
+          <div class="ins"><span class="em">🔁</span><p>ה-AI יכול ללמד את עצמו - תני לו פלט טוב ופלט רע וגרמי לו לחלץ את ההפרש.</p></div>
+          <div class="ins"><span class="em">✂️</span><p>שיחות קצרות עדיפות על ארוכות. שיחה ארוכה = סימן שמשהו לא פוצל נכון.</p></div>
+          <div class="ins"><span class="em">🔌</span><p>ככל שמחברים יותר כלים - ה-AI יכול להביא דאטה ממקומות שונים ולעשות יותר.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOMEWORK -->
+    <section class="section section-block open" id="hw" data-cat="extra" data-search="שיעורי בית deep research ויזואל connectors gmail calendar notion claude desktop תיקייה">
+      <div class="sec-head"><div class="sec-ic">✅</div><div class="tt"><h3>שיעורי בית</h3><span class="sub">מה לעשות עד השיעור הבא</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <div class="hw">
+          <h4>המשימות לשבוע</h4>
+          <ul>
+            <li>לנסות את שיטת Deep Research עם תוכנית מחקר על נושא שרלוונטי לעבודה.</li>
+            <li>לקחת Deep Research שיצא ולהפוך אותו לויזואל - מצגת, דשבורד, או אינפוגרפיקה.</li>
+            <li>לחבר את קלוד לכלים שכבר עובדים איתם (Gmail, Google Calendar, Notion) דרך Connectors.</li>
+            <li>מי שמוריד Claude Desktop - לפתוח תיקייה ספציפית ולתת לו לעבוד עליה.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- GLOSSARY -->
+    <section class="section section-block open" id="gloss" data-cat="extra" data-search="מילון מושגים מטה קוגניציה deep research artifact plugin connector cowork mcp">
+      <div class="sec-head"><div class="sec-ic">📖</div><div class="tt"><h3>מילון מושגים אינטראקטיבי</h3><span class="sub">לחיצה על מושג פותחת הסבר בפשטות</span></div><div class="arrow">▾</div></div>
+      <div class="sec-body">
+        <div class="gloss-grid" id="gloss-grid"></div>
+      </div>
+    </section>
+
+    <div class="no-results" id="noResults">😶 לא נמצאו תוצאות לחיפוש הזה. נסי מילה אחרת.</div>
+
+    <footer>נבנה מסינתזה של <span class="grad">סיכום שיעור 2 + השאלות מהשיעור · קורס AI</span></footer>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var sections = Array.prototype.slice.call(document.querySelectorAll('.section'));
+  var blocks = Array.prototype.slice.call(document.querySelectorAll('.section-block'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.sidenav a'));
+
+  /* ===== THEME TOGGLE ===== */
+  var themeBtn = document.getElementById('themeBtn');
+  function setIcon(){ themeBtn.textContent = root.getAttribute('data-theme')==='dark' ? '🌙' : '☀️'; }
+  try{ var saved = localStorage.getItem('shlhevet2theme'); if(saved){ root.setAttribute('data-theme', saved); } }catch(e){}
+  setIcon();
+  themeBtn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    setIcon();
+    try{ localStorage.setItem('shlhevet2theme', next); }catch(e){}
+  });
+
+  /* ===== GLOSSARY ===== */
+  var glossary=[
+    ["מטה קוגניציה","לחשוב על מה שאת עושה תוך כדי שאת עושה את זה."],
+    ["Deep Research","חיפוש מעמיק שמריצים עם תוכנית מחקר מוגדרת - לא חיפוש רגיל."],
+    ["Artifact","כשקלוד יוצר מסמך שנפתח בצד - HTML, קוד, ויזואליזציה."],
+    ["Plugin","אוסף של סקילים שמותקן על המחשב. עובד רק ב-Cowork."],
+    ["Connector","חיבור ל-Gmail, Notion, Airtable וכו' - נותן לקלוד גישה לדאטה שם."],
+    ["Cowork","Claude Desktop - קלוד שמחובר לתיקיות ולקבצים על המחשב."],
+    ["MCP","הפרוטוקול שמאפשר את החיבורים האלה לכלים חיצוניים."]
+  ];
+  var gw=document.getElementById('gloss-grid');
+  glossary.forEach(function(g){
+    var d=document.createElement('div'); d.className='gcard';
+    d.innerHTML='<div class="term"><span>'+g[0]+'</span><span class="plus">+</span></div><div class="def">'+g[1]+'</div>';
+    d.addEventListener('click',function(){ d.classList.toggle('open'); });
+    gw.appendChild(d);
+  });
+
+  /* ===== EXAMPLES (collapsible) ===== */
+  document.querySelectorAll('.example').forEach(function(ex){
+    ex.querySelector('.ex-head').addEventListener('click', function(){ ex.classList.toggle('open'); });
+  });
+
+  /* ===== COLLAPSE / EXPAND ===== */
+  sections.forEach(function(sec){
+    var head = sec.querySelector('.sec-head');
+    head.addEventListener('click', function(){ sec.classList.toggle('open'); });
+  });
+  document.getElementById('expandAll').addEventListener('click', function(){
+    sections.forEach(function(s){ s.classList.add('open'); });
+  });
+  document.getElementById('collapseAll').addEventListener('click', function(){
+    sections.forEach(function(s){ s.classList.remove('open'); });
+  });
+
+  /* ===== MOBILE MENU ===== */
+  var nav = document.getElementById('sidenav');
+  var scrim = document.getElementById('scrim');
+  function closeNav(){ nav.classList.remove('open'); scrim.classList.remove('show'); }
+  document.getElementById('menuBtn').addEventListener('click', function(){
+    nav.classList.toggle('open'); scrim.classList.toggle('show');
+  });
+  scrim.addEventListener('click', closeNav);
+  navLinks.forEach(function(a){ a.addEventListener('click', closeNav); });
+
+  /* ===== SCROLLSPY + READING PROGRESS ===== */
+  var ids = navLinks.map(function(a){ return a.getAttribute('href').slice(1); });
+  var pfill = document.getElementById('pfill');
+  function onScroll(){
+    var y = window.scrollY + 130, current = ids[0];
+    ids.forEach(function(id){
+      var el = document.getElementById(id);
+      if(el && el.offsetParent!==null && el.getBoundingClientRect().top + window.scrollY <= y) current = id;
+    });
+    navLinks.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href')==='#'+current); });
+    var docH = document.documentElement.scrollHeight - window.innerHeight;
+    pfill.style.width = (docH>0 ? Math.min(100,(window.scrollY/docH)*100) : 0) + '%';
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', onScroll);
+
+  /* ===== SEARCH + CATEGORY FILTER ===== */
+  var input = document.getElementById('search');
+  var noRes = document.getElementById('noResults');
+  var activeCat = 'all';
+
+  function clearMarks(el){
+    el.querySelectorAll('mark').forEach(function(m){
+      var t = document.createTextNode(m.textContent);
+      m.parentNode.replaceChild(t, m);
+    });
+    el.normalize && el.normalize();
+  }
+  function highlight(el, q){
+    var walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null), nodes=[], n;
+    while(n = walker.nextNode()){ nodes.push(n); }
+    var lq = q.toLowerCase();
+    nodes.forEach(function(node){
+      var txt = node.nodeValue; if(!txt.trim()) return;
+      var idx = txt.toLowerCase().indexOf(lq); if(idx===-1) return;
+      var span = document.createElement('span');
+      span.appendChild(document.createTextNode(txt.slice(0,idx)));
+      var mk = document.createElement('mark'); mk.textContent = txt.slice(idx, idx+q.length);
+      span.appendChild(mk); span.appendChild(document.createTextNode(txt.slice(idx+q.length)));
+      node.parentNode.replaceChild(span, node);
+    });
+  }
+
+  function applyFilters(){
+    var q = input.value.trim(), lq = q.toLowerCase(), anyVisible = false;
+    blocks.forEach(function(b){ clearMarks(b); });
+
+    blocks.forEach(function(b){
+      var isHero = b.id==='msg';
+      var catOk = (activeCat==='all') || (b.dataset.cat===activeCat) || isHero;
+      var hay = (b.textContent + ' ' + (b.getAttribute('data-search')||'')).toLowerCase();
+      var matchQ = q==='' || hay.indexOf(lq)!==-1;
+      var show = catOk && matchQ;
+      b.classList.toggle('hidden', !show);
+      if(show){
+        if(!isHero) anyVisible = true;
+        if(b.classList.contains('section')) b.classList.add('open');
+        if(q!=='') highlight(b, q);
+      }
+    });
+
+    document.querySelectorAll('.gcard').forEach(function(gc){
+      if(q==='' || gc.textContent.toLowerCase().indexOf(lq)!==-1){ gc.classList.remove('hidden'); if(q!=='') gc.classList.add('open'); }
+      else { gc.classList.add('hidden'); }
+    });
+
+    document.querySelectorAll('.example').forEach(function(ex){
+      if(q!=='' && ex.textContent.toLowerCase().indexOf(lq)!==-1) ex.classList.add('open');
+    });
+
+    noRes.style.display = anyVisible ? 'none' : 'block';
+    onScroll();
+  }
+
+  input.addEventListener('input', applyFilters);
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('.chip').forEach(function(x){ x.classList.remove('active'); });
+      c.classList.add('active');
+      activeCat = c.dataset.f;
+      applyFilters();
+    });
+  });
+
+  onScroll();
+})();
+</script>
+</body>
+</html>
