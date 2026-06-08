@@ -221,7 +221,10 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
 .ck.done .box{background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.65); color:#fff}
 .ck.done .box::after{content:"\2713"}
 .done-count{margin-top:10px; font-size:12.5px; font-weight:700; color:var(--accent)}
-.cb-tip{margin-top:0}
+
+.subitem{margin-top:13px; padding-inline-start:14px; border-inline-start:2px solid var(--stroke)}
+.subitem h5{font-size:15.5px; font-weight:800; color:var(--txt); margin-bottom:2px; display:flex; align-items:center; gap:7px}
+.tile>.track{margin-top:11px}
 
 /* ===== RESPONSIVE ===== */
 @media (max-width:1024px){
@@ -366,13 +369,27 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
     </section>
 
     <!-- 6 · INSTAGRAM STRATEGY -->
-    <section class="section section-block open" id="instagram" data-cat="content" data-search="אסטרטגיה כתיבה אינסטגרם ניצן הגדלת קהילה שימור קהילה הקורס הרגיל המועדון instagram">
+    <section class="section section-block open" id="instagram" data-cat="content" data-search="אסטרטגיה כתיבה אינסטגרם ניצן הגדלת קהילה שימור קהילה הקורס הרגיל המועדון מאסטרקלאסים מגזינים instagram">
       <div class="sec-head"><div class="sec-ic">📱</div><div class="tt"><h3>אסטרטגיית כתיבה לאינסטגרם <span class="owner">ניצן</span></h3><span class="sub">הגדלה ושימור של הקהילה</span></div><div class="arrow">▾</div></div>
       <div class="sec-body">
         <p class="lead">קורס לאסטרטגיה של כתיבה עבור אינסטגרם להגדלת ושימור הקהילה.</p>
-        <div class="grid c2">
-          <div class="tile"><h4>📘 הקורס הרגיל</h4><p>החלק הראשון של ניצן.</p></div>
-          <div class="tile"><h4>⭐ המועדון</h4><p>החלק השני של ניצן.</p></div>
+        <div class="tile">
+          <h4>📘 הקורס הרגיל</h4>
+          <p>החלק הראשון של ניצן.</p>
+          <div class="track"><button type="button" class="ck" data-store="ig-regular-dl"><span class="box"></span>הורדתי שיעורים</button><button type="button" class="ck" data-store="ig-regular-tr"><span class="box"></span>תמללתי</button></div>
+        </div>
+        <div class="tile" style="margin-top:14px">
+          <h4>⭐ המועדון</h4>
+          <p>החלק השני של ניצן.</p>
+          <div class="track"><button type="button" class="ck" data-store="ig-club-dl"><span class="box"></span>הורדתי שיעורים</button><button type="button" class="ck" data-store="ig-club-tr"><span class="box"></span>תמללתי</button></div>
+          <div class="subitem">
+            <h5>📚 מאסטרקלאסים</h5>
+            <div class="track"><button type="button" class="ck" data-store="ig-master-dl"><span class="box"></span>הורדתי שיעורים</button><button type="button" class="ck" data-store="ig-master-tr"><span class="box"></span>תמללתי</button></div>
+          </div>
+          <div class="subitem">
+            <h5>📰 מגזינים</h5>
+            <div class="track"><button type="button" class="ck" data-store="ig-mag-dl"><span class="box"></span>הורדתי שיעורים</button><button type="button" class="ck" data-store="ig-mag-tr"><span class="box"></span>תמללתי</button></div>
+          </div>
         </div>
         <div class="addbox"><span class="pin">➕</span><div>מוכן להרחבה - כאן ייכנס התוכן שנוסיף על הקורס.</div></div>
       </div>
@@ -442,13 +459,7 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
     if(cbCounter) cbCounter.textContent = '✓ סימנת ' + done + ' מתוך ' + total;
   }
 
-  var cbChips = document.getElementById('chips');
-  if(cbChips){
-    var cbTip = document.createElement('div');
-    cbTip.className = 'note cb-tip';
-    cbTip.innerHTML = '<span class="pin">💡</span><div>אפשר לגרור כל קורס מהידית <b>⠿</b> שבראש הכרטיס כדי לשנות את הסדר, ולסמן בכל קורס <b>הורדתי שיעורים</b> ו<b>תמללתי</b>. הכול נשמר אצלך בדפדפן אוטומטית.</div>';
-    cbChips.insertAdjacentElement('afterend', cbTip);
-  }
+  /* tip banner removed per request */
 
   sections.forEach(function(sec){
     var head = sec.querySelector('.sec-head');
@@ -622,6 +633,18 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
       applyFilters();
     });
   });
+
+  /* ===== PER-ITEM CHECKBOXES (data-store) - persist independently ===== */
+  (function(){
+    var items = {};
+    try{ items = JSON.parse(localStorage.getItem('coursesboard-items')||'{}') || {}; }catch(e){ items = {}; }
+    function save(){ try{ localStorage.setItem('coursesboard-items', JSON.stringify(items)); }catch(e){} }
+    document.querySelectorAll('.ck[data-store]').forEach(function(b){
+      var k = b.getAttribute('data-store');
+      if(items[k]) b.classList.add('done');
+      b.addEventListener('click', function(e){ e.stopPropagation(); b.classList.toggle('done'); items[k] = b.classList.contains('done'); save(); });
+    });
+  })();
 
   onScroll();
 })();
