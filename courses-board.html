@@ -203,6 +203,26 @@ mark{background:var(--mark); color:var(--txt); border-radius:4px; padding:0 2px}
 footer{text-align:center; margin-top:44px; color:var(--txt-dim); font-size:14px}
 footer .grad{background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800}
 
+/* ===== REORDER HANDLE + PROGRESS CHECKBOXES (added) ===== */
+.drag-handle{flex:none; width:30px; height:38px; border:none; background:transparent; cursor:grab;
+  color:var(--txt-dim); font-size:18px; line-height:1; display:grid; place-items:center; border-radius:9px;
+  touch-action:none; transition:background .15s,color .15s}
+.drag-handle:hover{background:var(--card-hover); color:var(--accent)}
+.drag-handle:active{cursor:grabbing}
+.section.dragging{opacity:.6; box-shadow:0 22px 54px -16px rgba(60,30,140,.85); border-color:var(--stroke-strong)}
+.track{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+.ck{display:inline-flex; align-items:center; gap:7px; font-family:inherit; font-size:13px; font-weight:700;
+  cursor:pointer; padding:6px 13px 6px 9px; border-radius:99px; border:1.5px solid var(--stroke-strong);
+  background:var(--card); color:var(--txt-soft); transition:background .16s,color .16s,border-color .16s; touch-action:manipulation}
+.ck:hover{background:var(--card-hover); color:var(--txt)}
+.ck .box{width:16px; height:16px; border-radius:5px; border:1.5px solid var(--stroke-strong);
+  display:grid; place-items:center; font-size:11px; line-height:1}
+.ck.done{background:var(--grad); color:#fff; border-color:transparent}
+.ck.done .box{background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.65); color:#fff}
+.ck.done .box::after{content:"\2713"}
+.done-count{margin-top:10px; font-size:12.5px; font-weight:700; color:var(--accent)}
+.cb-tip{margin-top:0}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width:1024px){
   .shell{grid-template-columns:240px 1fr}
@@ -390,6 +410,110 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
   var blocks = Array.prototype.slice.call(document.querySelectorAll('.section-block'));
   var navLinks = Array.prototype.slice.call(document.querySelectorAll('.sidenav a'));
 
+  /* ===== REORDER (drag) + PROGRESS CHECKBOXES + PERSISTENCE (added) ===== */
+  var cbMain = document.getElementById('main');
+  var cbNoRes = document.getElementById('noResults');
+  var justDragged = false, cbDragging = null;
+
+  var cbProgress = {};
+  try{ cbProgress = JSON.parse(localStorage.getItem('coursesboard-progress')||'{}') || {}; }catch(e){ cbProgress = {}; }
+  function cbSaveProgress(){ try{ localStorage.setItem('coursesboard-progress', JSON.stringify(cbProgress)); }catch(e){} }
+
+  function cbSectionList(){ return Array.prototype.slice.call(cbMain.querySelectorAll('.section')); }
+  function cbSaveOrder(){ try{ localStorage.setItem('coursesboard-order', JSON.stringify(cbSectionList().map(function(s){ return s.id; }))); }catch(e){} }
+
+  try{
+    var cbOrder = JSON.parse(localStorage.getItem('coursesboard-order')||'null');
+    if(cbOrder && cbOrder.length){
+      cbOrder.forEach(function(id){
+        var el = document.getElementById(id);
+        if(el && el.classList.contains('section')) cbMain.insertBefore(el, cbNoRes);
+      });
+    }
+  }catch(e){}
+
+  var cbCounter = document.createElement('div');
+  cbCounter.className = 'done-count';
+  var cbPbox = document.querySelector('.progress-box');
+  if(cbPbox) cbPbox.appendChild(cbCounter);
+  function cbUpdateCounter(){
+    var total = sections.length * 2, done = 0;
+    sections.forEach(function(s){ var p = cbProgress[s.id]; if(p){ if(p.download) done++; if(p.transcribe) done++; } });
+    if(cbCounter) cbCounter.textContent = '✓ סימנת ' + done + ' מתוך ' + total;
+  }
+
+  var cbChips = document.getElementById('chips');
+  if(cbChips){
+    var cbTip = document.createElement('div');
+    cbTip.className = 'note cb-tip';
+    cbTip.innerHTML = '<span class="pin">💡</span><div>אפשר לגרור כל קורס מהידית <b>⠿</b> שבראש הכרטיס כדי לשנות את הסדר, ולסמן בכל קורס <b>הורדתי שיעורים</b> ו<b>תמללתי</b>. הכול נשמר אצלך בדפדפן אוטומטית.</div>';
+    cbChips.insertAdjacentElement('afterend', cbTip);
+  }
+
+  sections.forEach(function(sec){
+    var head = sec.querySelector('.sec-head');
+    var tt = head.querySelector('.tt');
+
+    var handle = document.createElement('button');
+    handle.type = 'button';
+    handle.className = 'drag-handle';
+    handle.title = 'גרור כדי לשנות סדר';
+    handle.setAttribute('aria-label', 'גרור כדי לשנות סדר');
+    handle.textContent = '⠿';
+    head.insertBefore(handle, head.firstChild);
+
+    var track = document.createElement('div');
+    track.className = 'track';
+    [['download','הורדתי שיעורים'],['transcribe','תמללתי']].forEach(function(pair){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ck';
+      b.setAttribute('data-k', pair[0]);
+      b.innerHTML = '<span class="box"></span>' + pair[1];
+      if(cbProgress[sec.id] && cbProgress[sec.id][pair[0]]) b.classList.add('done');
+      b.addEventListener('click', function(e){
+        e.stopPropagation();
+        b.classList.toggle('done');
+        if(!cbProgress[sec.id]) cbProgress[sec.id] = {};
+        cbProgress[sec.id][pair[0]] = b.classList.contains('done');
+        cbSaveProgress(); cbUpdateCounter();
+      });
+      track.appendChild(b);
+    });
+    tt.appendChild(track);
+
+    handle.addEventListener('pointerdown', function(e){
+      e.preventDefault();
+      cbDragging = sec; sec.classList.add('dragging');
+      try{ handle.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    handle.addEventListener('pointermove', function(e){
+      if(!cbDragging) return;
+      e.preventDefault();
+      var els = cbSectionList().filter(function(s){ return s!==cbDragging && !s.classList.contains('hidden'); });
+      var after = null, closest = -Infinity;
+      els.forEach(function(s){
+        var r = s.getBoundingClientRect();
+        var offset = e.clientY - (r.top + r.height/2);
+        if(offset < 0 && offset > closest){ closest = offset; after = s; }
+      });
+      if(after) cbMain.insertBefore(cbDragging, after);
+      else cbMain.insertBefore(cbDragging, cbNoRes);
+    });
+    function cbEnd(e){
+      if(!cbDragging) return;
+      cbDragging.classList.remove('dragging'); cbDragging = null;
+      justDragged = true; setTimeout(function(){ justDragged = false; }, 60);
+      try{ handle.releasePointerCapture(e.pointerId); }catch(_){}
+      cbSaveOrder();
+    }
+    handle.addEventListener('pointerup', cbEnd);
+    handle.addEventListener('pointercancel', cbEnd);
+  });
+
+  cbUpdateCounter();
+
+
   /* ===== THEME TOGGLE ===== */
   var themeBtn = document.getElementById('themeBtn');
   function setIcon(){ themeBtn.textContent = root.getAttribute('data-theme')==='dark' ? '🌙' : '☀️'; }
@@ -405,7 +529,7 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
   /* ===== COLLAPSE / EXPAND ===== */
   sections.forEach(function(sec){
     var head = sec.querySelector('.sec-head');
-    head.addEventListener('click', function(){ sec.classList.toggle('open'); });
+    head.addEventListener('click', function(e){ if(e.target.closest('.drag-handle')||e.target.closest('.track')||justDragged) return; sec.classList.toggle('open'); });
   });
   document.getElementById('expandAll').addEventListener('click', function(){
     sections.forEach(function(s){ s.classList.add('open'); });
