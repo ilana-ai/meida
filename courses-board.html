@@ -226,6 +226,16 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
 .subitem h5{font-size:15.5px; font-weight:800; color:var(--txt); margin-bottom:2px; display:flex; align-items:center; gap:7px}
 .tile>.track{margin-top:11px}
 
+/* transcript links */
+.links{display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-top:8px}
+.lrow{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; background:var(--tile); border:1px solid var(--tile-bd); border-radius:99px; padding:4px 6px 4px 11px}
+.lrow a{color:var(--accent); text-decoration:none; font-weight:700; max-width:170px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.lrow a:hover{text-decoration:underline}
+.lrow .ldel{border:none; background:transparent; color:var(--txt-dim); cursor:pointer; font-size:12px; padding:0 2px; line-height:1}
+.lrow .ldel:hover{color:#e0556b}
+.ladd{border:1px dashed var(--stroke-strong); background:transparent; color:var(--accent); cursor:pointer; font-family:inherit; font-size:12px; font-weight:700; border-radius:99px; padding:4px 11px; touch-action:manipulation}
+.ladd:hover{background:var(--card-hover)}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width:1024px){
   .shell{grid-template-columns:240px 1fr}
@@ -643,6 +653,46 @@ footer .grad{background:var(--grad); -webkit-background-clip:text; background-cl
       var k = b.getAttribute('data-store');
       if(items[k]) b.classList.add('done');
       b.addEventListener('click', function(e){ e.stopPropagation(); b.classList.toggle('done'); items[k] = b.classList.contains('done'); save(); });
+    });
+  })();
+
+  /* ===== TRANSCRIPT LINKS - per track, multiple, persistent ===== */
+  (function(){
+    var LK = 'coursesboard-links', data = {};
+    try{ data = JSON.parse(localStorage.getItem(LK)||'{}') || {}; }catch(e){ data = {}; }
+    function save(){ try{ localStorage.setItem(LK, JSON.stringify(data)); }catch(e){} }
+    function keyOf(track){
+      var t = track.querySelector('.ck[data-store$="-tr"]');
+      if(t) return t.getAttribute('data-store');
+      var sec = track.closest('.section');
+      return (sec ? sec.id : 'x') + '-card-tr';
+    }
+    function norm(u){ if(!/^https?:\/\//i.test(u)) u = 'https://' + u; return u; }
+    function render(box, key){
+      var arr = data[key] || [];
+      box.innerHTML = '';
+      arr.forEach(function(u, i){
+        var row = document.createElement('span'); row.className = 'lrow';
+        var a = document.createElement('a'); a.href = norm(u); a.target = '_blank'; a.rel = 'noopener'; a.textContent = '🔗 תמלול ' + (i+1);
+        var del = document.createElement('button'); del.type = 'button'; del.className = 'ldel'; del.textContent = '✕'; del.title = 'מחיקת הקישור';
+        del.addEventListener('click', function(e){ e.stopPropagation(); arr.splice(i,1); data[key] = arr; save(); render(box, key); });
+        row.appendChild(a); row.appendChild(del); box.appendChild(row);
+      });
+      var add = document.createElement('button'); add.type = 'button'; add.className = 'ladd';
+      add.textContent = arr.length ? '+ קישור' : '🔗 הוסף קישור תמלול';
+      add.addEventListener('click', function(e){
+        e.stopPropagation();
+        var u = prompt('הדביקי כאן קישור לתמלול:');
+        if(u){ u = u.trim(); if(u){ arr.push(u); data[key] = arr; save(); render(box, key); } }
+      });
+      box.appendChild(add);
+    }
+    document.querySelectorAll('.track').forEach(function(track){
+      var key = keyOf(track);
+      var box = document.createElement('div'); box.className = 'links';
+      box.addEventListener('click', function(e){ e.stopPropagation(); });
+      track.parentNode.insertBefore(box, track.nextSibling);
+      render(box, key);
     });
   })();
 
